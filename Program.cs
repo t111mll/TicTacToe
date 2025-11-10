@@ -70,9 +70,11 @@ void PrintGrid()
     {
         for (int j = 0; j < 3; j++)
         {
-            Console.Write(grid[i * 3 + j] + " | ");
+            int idx = i * 3 + j;
+            Console.Write($" {grid[idx]} ");
+            if (j < 2) Console.Write("|");
         }
         Console.WriteLine();
-        Console.WriteLine("-----------");
+        if (i < 2) Console.WriteLine("---+---+---");
     }
 }
