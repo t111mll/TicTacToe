@@ -2,7 +2,8 @@
 bool isPlayer1Turn = true;
 int numTurns = 0;
 
-while (!CheckedVictory() && numTurns != 9)
+int[] winningLine = null;
+while ((winningLine = GetWinningLine()) == null && numTurns != 9)
 {
     PrintGrid();
 
@@ -12,7 +13,6 @@ while (!CheckedVictory() && numTurns != 9)
         Console.WriteLine("Player 2 (O), your turn!");
 
     string choice;
-
     while (true)
     {
         choice = Console.ReadLine();
@@ -24,9 +24,6 @@ while (!CheckedVictory() && numTurns != 9)
         Console.WriteLine("Invalid input. Please enter a number between 1 and 9 that is not already taken.");
     }
    
-
-    if (grid.Contains(choice) && choice != "X" && choice != "O")
-    {
         int gridIndex = Convert.ToInt32(choice) - 1;
 
         if (isPlayer1Turn)
@@ -35,43 +32,58 @@ while (!CheckedVictory() && numTurns != 9)
             grid[gridIndex] = "O";
 
         numTurns++;
-    }
 
     isPlayer1Turn = !isPlayer1Turn;
 }
 
-if (CheckedVictory())
+PrintGrid(winningLine);
+if (winningLine != null)
 {
     if (!isPlayer1Turn)
         Console.WriteLine("Congratulations Player 1 (X) wins!");
     else
         Console.WriteLine("Congratulations Player 2 (O) wins!");
+    Console.WriteLine("Winning line: " + string.Join(", ", winningLine.Select(i => i + 1)));
 }
 else
     Console.WriteLine("It's a draw");
 
-bool CheckedVictory()
+int[] GetWinningLine()
 {
-    bool row1 = grid[0] == grid[1] && grid[1] == grid[2];
-    bool row2 = grid[3] == grid[4] && grid[4] == grid[5];
-    bool row3 = grid[6] == grid[7] && grid[7] == grid[8];
-    bool col1 = grid[0] == grid[3] && grid[3] == grid[6];
-    bool col2 = grid[1] == grid[4] && grid[4] == grid[7];
-    bool col3 = grid[2] == grid[5] && grid[5] == grid[8];
-    bool diaDown = grid[0] == grid[4] && grid[4] == grid[8];
-    bool diaUp = grid[6] == grid[4] && grid[4] == grid[2];
-
-    return row1 || row2 || row3 || col1 || col2 || col3 || diaDown || diaUp;
+    int[][] winningLines = new int[][]
+    {
+        new int[] {0, 1, 2},
+        new int[] {3, 4, 5},
+        new int[] {6, 7, 8},
+        new int[] {0, 3, 6},
+        new int[] {1, 4, 7},
+        new int[] {2, 5, 8},
+        new int[] {0, 4, 8},
+        new int[] {6, 4, 2}
+    };
+    foreach (var line in winningLines)
+    {
+        if (grid[line[0]] == grid[line[1]] && grid[line[1]] == grid[line[2]])
+        {
+            return line;
+        }
+    }
+    return null;
 }
 
-void PrintGrid()
+void PrintGrid(int[] highlight = null)
 {
     for (int i = 0; i < 3; i++)
     {
         for (int j = 0; j < 3; j++)
         {
             int idx = i * 3 + j;
-            Console.Write($" {grid[idx]} ");
+            string cell = grid[idx];
+            if (highlight != null && highlight.Contains(idx))
+                cell = $"[{cell}]";
+            else
+                cell = $" {cell} ";
+            Console.Write(cell);
             if (j < 2) Console.Write("|");
         }
         Console.WriteLine();
